@@ -29,7 +29,7 @@ func (hook Hook) Fire(entry *logrus.Entry) error {
 	} else {
 		// If there is no request, we build one in order to send
 		// all the variables to airbrake
-		req := new(http.Request)
+		req = new(http.Request)
 		req.Header = make(http.Header)
 	}
 
