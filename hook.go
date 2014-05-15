@@ -14,18 +14,18 @@ type Hook struct{}
 func (hook Hook) Fire(entry *logrus.Entry) error {
 	var err error
 	var req *http.Request
+
 	if r, ok := entry.Data["req"]; ok {
-		req = r.(*http.Request)
+		req, ok = r.(*http.Request)
+		if ok {
+			// We don't want to log credentials
+			req.Header.Del("Authorization")
 
-		// We don't wan to log credentials
-		req.Header.Del("Authorization")
-
-		// Not working, entry.Data is not modifiable (yet)
-		// https://github.com/Sirupsen/logrus/issues/13
-		entry.Data["req"] = fmt.Sprintf(
-			"%s %s %s %s",
-			req.Method, req.URL, req.UserAgent(), req.RemoteAddr,
-		)
+			entry.Data["req"] = fmt.Sprintf(
+				"%s %s %s %s",
+				req.Method, req.URL, req.UserAgent(), req.RemoteAddr,
+			)
+		}
 	} else {
 		// If there is no request, we build one in order to send
 		// all the variables to airbrake
