@@ -1,6 +1,7 @@
 package logrus_airbrake
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -45,10 +46,14 @@ func (hook Hook) Fire(entry *logrus.Entry) error {
 	// If there is an error field, we want it to be part of Airbrake ticket name
 	var errorMsg error
 	if entry.Data["error"] != nil {
-		errorMsg = fmt.Errorf("%v - %v",
-			entry.Data["error"].(error),
-			entry.Data["msg"].(string),
-		)
+		errorTxt := new(bytes.Buffer)
+		errorTxt.WriteString(entry.Data["error"].(error).Error())
+		if msg, ok := entry.Data["msg"]; ok && msg != nil {
+			if strMsg, ok := entry.Data["msg"].(string); ok {
+				errorTxt.WriteString("- " + strMsg)
+			}
+		}
+		errorMsg = fmt.Errorf(string(errorTxt.Bytes()))
 	} else {
 		errorMsg = errors.New(entry.Data["msg"].(string))
 	}
