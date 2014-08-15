@@ -68,8 +68,8 @@ func (hook Hook) Fire(entry *logrus.Entry) error {
 
 func (hook Hook) Levels() []logrus.Level {
 	return []logrus.Level{
-		logrus.Error,
-		logrus.Fatal,
-		logrus.Panic,
+		logrus.ErrorLevel,
+		logrus.FatalLevel,
+		logrus.PanicLevel,
 	}
 }
